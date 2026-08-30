@@ -82,3 +82,23 @@ export const googleLogin = async (req, res, next) => {
     next(err);
   }
 };
+
+export const logoutUser = async (req, res, next) => {
+  try {
+    const cookieOptions = {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    };
+
+    res.clearCookie('accessToken', cookieOptions);
+    res.clearCookie('refreshToken', cookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+  } catch (err) {
+    next(err);
+  }
+};

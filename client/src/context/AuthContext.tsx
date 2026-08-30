@@ -152,6 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(newUser);
         setRateLimit(DEFAULT_AUTH_RATE_LIMIT);
         localStorage.setItem('jaas_user', JSON.stringify(newUser));
+        refreshRateLimit();
         return true;
       }
     } catch (err) {
@@ -160,7 +161,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
-  const loginAsGuest = (name = 'Guest User', email = 'guest@windows.xp') => {
+  const loginAsGuest = async (name = 'Guest User', email = 'guest@windows.xp') => {
+    try {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (e) {
+      console.warn('Clear cookies on guest login call notice:', e);
+    }
     const guestUser: User = {
       name,
       email,
@@ -170,12 +179,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(guestUser);
     setRateLimit(DEFAULT_GUEST_RATE_LIMIT);
     localStorage.setItem('jaas_user', JSON.stringify(guestUser));
+    refreshRateLimit();
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (e) {
+      console.warn('Logout API call notice:', e);
+    }
     setUser(null);
     setRateLimit(DEFAULT_GUEST_RATE_LIMIT);
     localStorage.removeItem('jaas_user');
+    refreshRateLimit();
   };
 
   return (
