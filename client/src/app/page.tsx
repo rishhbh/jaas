@@ -415,9 +415,9 @@ export default function Home() {
 
           <div className="flex flex-wrap gap-4 text-[var(--ink-dim)]">
             <span className="hover:text-[var(--brutal-yellow)] cursor-pointer">BUN RUNTIME</span>
-            <span>//</span>
+            <span>{"//"}</span>
             <span className="hover:text-[var(--brutal-yellow)] cursor-pointer">GROQ GPT-OSS-120B</span>
-            <span>//</span>
+            <span>{"//"}</span>
             <span className="hover:text-[var(--brutal-yellow)] cursor-pointer">UPSTASH REDIS</span>
           </div>
         </div>
@@ -426,12 +426,12 @@ export default function Home() {
       {/* Bottom Scrolling Marquee Ticker */}
       <div className="bg-[var(--brutal-yellow)] text-black border-t-3 border-black py-1.5 overflow-hidden font-mono font-black text-xs uppercase tracking-widest z-50">
         <div className="animate-marquee whitespace-nowrap">
-          <span className="mx-6">// JaaS // JUDGING-AS-A-SERVICE</span>
+          <span className="mx-6">{"// JaaS // JUDGING-AS-A-SERVICE"}</span>
           <span className="mx-6">[GROQ GPT-OSS-120B] LLM ENGINE</span>
           <span className="mx-6 font-mono bg-black text-yellow-300 px-2 py-0.5">UNHINGED README ROASTER</span>
           <span className="mx-6">[UPSTASH REDIS] RATE LIMITING (67/24H & GUEST 1-TRIAL)</span>
           <span className="mx-6">[BUN ENGINE] EXPRESS JS RUNTIME</span>
-          <span className="mx-6">// JaaS // JUDGING-AS-A-SERVICE</span>
+          <span className="mx-6">{"// JaaS // JUDGING-AS-A-SERVICE"}</span>
           <span className="mx-6">[GROQ GPT-OSS-120B] LLM ENGINE</span>
           <span className="mx-6 font-mono bg-black text-yellow-300 px-2 py-0.5">UNHINGED README ROASTER</span>
           <span className="mx-6">[UPSTASH REDIS] RATE LIMITING (67/24H & GUEST 1-TRIAL)</span>

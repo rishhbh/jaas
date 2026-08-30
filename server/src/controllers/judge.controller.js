@@ -145,3 +145,14 @@ export const judgeReadme = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getRateLimitStatus = async (req, res, next) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      rateLimit: req.rateLimit,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

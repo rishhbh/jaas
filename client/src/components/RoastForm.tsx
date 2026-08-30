@@ -30,7 +30,7 @@ interface RoastFormProps {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
-  const { setRateLimit } = useAuth();
+  const { setRateLimit, refreshRateLimit } = useAuth();
   const [activeTab, setActiveTab] = useState<'link' | 'paste'>('link');
   const [repoUrl, setRepoUrl] = useState('');
   const [readmeText, setReadmeText] = useState('');
@@ -40,7 +40,7 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
   const [fetchedMetadata, setFetchedMetadata] = useState<{
     owner: string | null;
     repo: string | null;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
     markdown: string;
   } | null>(null);
 
@@ -129,6 +129,8 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
 
       if (data.rateLimit) {
         setRateLimit(data.rateLimit);
+      } else {
+        refreshRateLimit();
       }
 
       if (!res.ok || !data.success) {
@@ -146,6 +148,7 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
       setErrorMsg(error.message || 'Network error generating roast verdict.');
     } finally {
       setRoasting(false);
+      refreshRateLimit();
     }
   };
 
@@ -219,7 +222,7 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
                 {fetchingPreview ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>FETCHING...</span>
+                    <span>WAIT BRO...</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
@@ -260,6 +263,23 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
                 <Eye className="w-4 h-4 mr-2" />
                 <span>PREVIEW MARKDOWN</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Live Loading Banner for Free Tier Cold Start */}
+        {(fetchingPreview || roasting) && (
+          <div className="p-4 bg-[var(--brutal-yellow)] text-black border-3 border-[var(--ink)] shadow-[4px_4px_0px_var(--shadow-color)] flex items-center gap-3.5 font-mono animate-pulse">
+            <Loader2 className="w-6 h-6 animate-spin text-black shrink-0 stroke-[3]" />
+            <div className="flex flex-col gap-0.5">
+              <div className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                <span>Wait bro, it&apos;s Render&apos;s free instance ☕</span>
+              </div>
+              <p className="text-[11px] font-bold opacity-90 leading-tight">
+                {fetchingPreview
+                  ? 'Waking up backend container & fetching README from GitHub API...'
+                  : 'Cold starting Bun server container & running Groq GPT-OSS-120B AI... Takes ~15-25s if asleep!'}
+              </p>
             </div>
           </div>
         )}
@@ -320,7 +340,7 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
                 {roasting ? (
                   <span className="flex items-center justify-center gap-2">
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>GENERATING VERDICT...</span>
+                    <span>WAIT BRO IT&apos;S RENDER&apos;S FREE INSTANCE...</span>
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">

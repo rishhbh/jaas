@@ -46,6 +46,34 @@ export const judgeRateLimiter = async (req, res, next) => {
       ? req.user._id?.toString() || req.user.id
       : `guest:${req.headers['x-forwarded-for']?.split(',')[0] || req.ip || 'anonymous'}`;
 
+    if (req.method === 'GET') {
+      let remaining = currentLimit;
+      let resetAt = null;
+
+      if (typeof limiter.getRemaining === 'function') {
+        try {
+          const remainingRes = await limiter.getRemaining(identifier);
+          remaining = remainingRes.remaining;
+          resetAt = new Date(remainingRes.reset).toISOString();
+        } catch {
+          remaining = currentLimit;
+        }
+      }
+
+      const used = Math.max(0, currentLimit - remaining);
+      req.rateLimit = {
+        limit: currentLimit,
+        used,
+        remaining,
+        usageFormatted: `${used}/${currentLimit} roasts used this 24 hr`,
+        remainingFormatted: `${remaining}/${currentLimit} roasts remaining`,
+        resetAt,
+        resetMessage: resetAt ? `Limits reset at ${resetAt}` : 'Limits reset daily',
+        isGuest: !isAuth,
+      };
+      return next();
+    }
+
     const { success, limit, remaining, reset } = await limiter.limit(identifier);
     const resetDate = new Date(reset);
     const resetAt = resetDate.toISOString();

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Flame, Clock, ShieldCheck, AlertCircle, Zap, UserPlus } from 'lucide-react';
+import { Flame, Clock, ShieldCheck, AlertCircle, UserPlus } from 'lucide-react';
 
 export const RateLimitIndicator: React.FC = () => {
   const { rateLimit, user } = useAuth();
@@ -52,8 +52,9 @@ export const RateLimitIndicator: React.FC = () => {
           </span>
         </div>
 
-        <div className="brutal-badge bg-black text-white border-black font-bold">
-          <span>UPSTASH REDIS SLIDING WINDOW</span>
+        <div className="flex items-center gap-1.5 brutal-badge bg-black text-white border-black font-bold">
+          <span className="w-2 h-2 rounded-full bg-[#00FF66] animate-pulse shrink-0" />
+          <span>LIVE • UPSTASH REDIS</span>
         </div>
       </div>
 

@@ -26,6 +26,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   rateLimit: RateLimitInfo;
   setRateLimit: React.Dispatch<React.SetStateAction<RateLimitInfo>>;
+  refreshRateLimit: () => Promise<void>;
   loginWithCredential: (credential: string) => Promise<boolean>;
   logout: () => void;
   loginAsGuest: (name?: string, email?: string) => void;
@@ -58,26 +59,61 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [rateLimit, setRateLimit] = useState<RateLimitInfo>(DEFAULT_GUEST_RATE_LIMIT);
-
-  useEffect(() => {
-    // Restore session from localStorage if present
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === 'undefined') return null;
     const savedUser = localStorage.getItem('jaas_user');
     if (savedUser) {
       try {
-        const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-        if (parsed.isGuest) {
-          setRateLimit(DEFAULT_GUEST_RATE_LIMIT);
-        } else {
-          setRateLimit(DEFAULT_AUTH_RATE_LIMIT);
-        }
+        return JSON.parse(savedUser);
       } catch (e) {
         console.error('Failed to parse saved user:', e);
       }
     }
-  }, []);
+    return null;
+  });
+
+  const [rateLimit, setRateLimit] = useState<RateLimitInfo>(() => {
+    if (user) {
+      return user.isGuest ? DEFAULT_GUEST_RATE_LIMIT : DEFAULT_AUTH_RATE_LIMIT;
+    }
+    return DEFAULT_GUEST_RATE_LIMIT;
+  });
+
+  const refreshRateLimit = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/judge/rate-limit`, {
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.rateLimit) {
+          setRateLimit(data.rateLimit);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not refresh rate limit status:', err);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch(`${API_BASE_URL}/api/judge/rate-limit`, {
+      credentials: 'include',
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.rateLimit) {
+          setRateLimit(data.rateLimit);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not refresh rate limit status:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   const loginWithCredential = async (credential: string): Promise<boolean> => {
     try {
@@ -149,6 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         rateLimit,
         setRateLimit,
+        refreshRateLimit,
         loginWithCredential,
         logout,
         loginAsGuest,
