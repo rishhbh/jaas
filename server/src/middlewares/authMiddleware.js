@@ -10,10 +10,9 @@ export const protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required. No access token provided.',
-      });
+      // Unauthenticated Guest Mode
+      req.user = null;
+      return next();
     }
 
     const secret = process.env.ACCESS_TOKEN_SECRET || 'access_secret_key_123';
@@ -21,26 +20,16 @@ export const protect = async (req, res, next) => {
 
     const user = await User.findById(decoded.id);
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User belonging to this token no longer exists.',
-      });
+      req.user = null;
+      return next();
     }
 
     req.user = user;
     next();
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Access token expired. Please refresh your session.',
-      });
-    }
-
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid access token. Authentication failed.',
-    });
+    // If token verification fails, fall back to guest mode gracefully
+    req.user = null;
+    next();
   }
 };
 

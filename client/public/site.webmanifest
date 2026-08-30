@@ -1,0 +1,16 @@
+{
+  "name": "JaaS // Judging-as-a-Service",
+  "short_name": "JaaS",
+  "description": "Unhinged AI repository judging engine powered by Groq GPT-OSS-120B and Bun Express runtime.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#FFEB3B",
+  "icons": [
+    {
+      "src": "/jaas.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

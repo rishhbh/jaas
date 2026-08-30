@@ -1,40 +1,52 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { redis } from '../config/redis.js';
 
-const TOTAL_ROAST_LIMIT = 67;
-let ratelimit = null;
+const AUTH_ROAST_LIMIT = 67;
+const GUEST_ROAST_LIMIT = 1;
+
+let authRatelimit = null;
+let guestRatelimit = null;
 
 if (redis) {
-  ratelimit = new Ratelimit({
+  authRatelimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(TOTAL_ROAST_LIMIT, '24 h'),
+    limiter: Ratelimit.slidingWindow(AUTH_ROAST_LIMIT, '24 h'),
     analytics: true,
-    prefix: 'jaas:ratelimit',
+    prefix: 'jaas:ratelimit:auth',
+  });
+
+  guestRatelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(GUEST_ROAST_LIMIT, '24 h'),
+    analytics: true,
+    prefix: 'jaas:ratelimit:guest',
   });
 }
 
 export const judgeRateLimiter = async (req, res, next) => {
-  if (!ratelimit) {
+  const isAuth = !!req.user;
+  const currentLimit = isAuth ? AUTH_ROAST_LIMIT : GUEST_ROAST_LIMIT;
+  const limiter = isAuth ? authRatelimit : guestRatelimit;
+
+  if (!limiter) {
     req.rateLimit = {
-      limit: TOTAL_ROAST_LIMIT,
+      limit: currentLimit,
       used: 0,
-      remaining: TOTAL_ROAST_LIMIT,
-      usageFormatted: `0/${TOTAL_ROAST_LIMIT} roasts used this 24 hr`,
-      remainingFormatted: `${TOTAL_ROAST_LIMIT}/${TOTAL_ROAST_LIMIT} roasts remaining`,
+      remaining: currentLimit,
+      usageFormatted: `0/${currentLimit} roasts used this 24 hr`,
+      remainingFormatted: `${currentLimit}/${currentLimit} roasts remaining`,
       resetAt: null,
+      isGuest: !isAuth,
     };
     return next();
   }
 
   try {
-    const identifier =
-      req.user?._id?.toString() ||
-      req.user?.id ||
-      req.headers['x-forwarded-for']?.split(',')[0] ||
-      req.ip ||
-      'anonymous';
+    const identifier = isAuth
+      ? req.user._id?.toString() || req.user.id
+      : `guest:${req.headers['x-forwarded-for']?.split(',')[0] || req.ip || 'anonymous'}`;
 
-    const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
+    const { success, limit, remaining, reset } = await limiter.limit(identifier);
     const resetDate = new Date(reset);
     const resetAt = resetDate.toISOString();
     const used = limit - remaining;
@@ -47,6 +59,7 @@ export const judgeRateLimiter = async (req, res, next) => {
       remainingFormatted: `${remaining}/${limit} roasts remaining`,
       resetAt,
       resetMessage: `Limits will reset on next day at ${resetAt}`,
+      isGuest: !isAuth,
     };
 
     req.rateLimit = rateLimitData;
@@ -57,9 +70,13 @@ export const judgeRateLimiter = async (req, res, next) => {
 
     if (!success) {
       const resetInSeconds = Math.max(0, Math.ceil((reset - Date.now()) / 1000));
+      const message = !isAuth
+        ? `Guest users are limited to 1 roast generation per 24 hours. Sign in with Google to unlock 67 roasts per 24 hr!`
+        : `Rate limit exceeded. You have used ${limit}/${limit} roasts allowed this 24 hr. Limits reset at ${resetAt}.`;
+
       return res.status(429).json({
         success: false,
-        message: `Rate limit exceeded. You have used ${limit}/${limit} roasts allowed this 24 hr. Limits reset at ${resetAt}.`,
+        message,
         rateLimit: {
           ...rateLimitData,
           used: limit,
@@ -75,12 +92,13 @@ export const judgeRateLimiter = async (req, res, next) => {
   } catch (error) {
     console.error('Rate Limiter Error:', error.message);
     req.rateLimit = {
-      limit: TOTAL_ROAST_LIMIT,
+      limit: currentLimit,
       used: 0,
-      remaining: TOTAL_ROAST_LIMIT,
-      usageFormatted: `0/${TOTAL_ROAST_LIMIT} roasts used this 24 hr`,
-      remainingFormatted: `${TOTAL_ROAST_LIMIT}/${TOTAL_ROAST_LIMIT} roasts remaining`,
+      remaining: currentLimit,
+      usageFormatted: `0/${currentLimit} roasts used this 24 hr`,
+      remainingFormatted: `${currentLimit}/${currentLimit} roasts remaining`,
       resetAt: null,
+      isGuest: !isAuth,
     };
     next();
   }

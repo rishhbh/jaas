@@ -1,6 +1,7 @@
 import { googleClient } from '../config/google.js';
 import User from '../models/User.js';
 import { generateAccessToken, generateRefreshToken, hashToken } from '../utils/token.js';
+import { uploadAvatarToCloudinary } from '../services/cloudinary.service.js';
 
 export const googleLogin = async (req, res, next) => {
   try {
@@ -31,11 +32,19 @@ export const googleLogin = async (req, res, next) => {
       email: payload.email,
     }).select('+refreshToken');
 
+    // Process avatar through Cloudinary
+    let avatarUrl = payload.picture;
+    try {
+      avatarUrl = await uploadAvatarToCloudinary(payload.picture, payload.sub || payload.email);
+    } catch (e) {
+      console.warn('Cloudinary avatar processing notice:', e.message);
+    }
+
     if (!user) {
       user = await User.create({
         name: payload.name,
         email: payload.email,
-        avatar: payload.picture,
+        avatar: avatarUrl,
         provider: 'google',
         providerId: payload.sub,
         isVerified: true,
@@ -46,10 +55,7 @@ export const googleLogin = async (req, res, next) => {
         user.providerId = payload.sub;
       }
 
-      if (!user.avatar) {
-        user.avatar = payload.picture;
-      }
-
+      user.avatar = avatarUrl || user.avatar;
       user.isVerified = true;
     }
 
@@ -64,6 +70,13 @@ export const googleLogin = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: 'Logged in successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        isGuest: false,
+      },
     });
   } catch (err) {
     next(err);

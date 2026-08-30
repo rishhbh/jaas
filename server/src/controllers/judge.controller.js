@@ -7,6 +7,42 @@ import {
   setCachedRoast,
 } from '../services/cache.service.js';
 
+export const fetchReadmePreview = async (req, res, next) => {
+  try {
+    const { repoUrl } = req.body;
+    if (!repoUrl || typeof repoUrl !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid GitHub repository URL or "owner/repo" string.',
+      });
+    }
+
+    const { owner, repo } = parseGithubUrl(repoUrl);
+    const githubData = await fetchRepoReadme(owner, repo);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        owner,
+        repo,
+        metadata: {
+          name: githubData.name,
+          path: githubData.path,
+          html_url: githubData.html_url,
+          download_url: githubData.download_url,
+          size: githubData.size,
+        },
+        markdown: githubData.markdown,
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || 'Failed to fetch README from GitHub.',
+    });
+  }
+};
+
 export const judgeReadme = async (req, res, next) => {
   try {
     const validation = judgeReadmeSchema.safeParse(req.body);
