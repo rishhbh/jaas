@@ -3,7 +3,10 @@ import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import Script from 'next/script';
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://jaas.dev';
+const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://jaas.dev';
+const appUrl = rawAppUrl.startsWith('http') ? rawAppUrl.replace(/\/$/, '') : `https://${rawAppUrl.replace(/\/$/, '')}`;
+const ogImageUrl = `${appUrl}/og-image.png`;
+const ogDynamicUrl = `${appUrl}/og`;
 
 export const viewport: Viewport = {
   themeColor: '#0a0a0c',
@@ -54,9 +57,19 @@ export const metadata: Metadata = {
     siteName: 'JaaS Engine',
     images: [
       {
-        url: '/og-image.png',
+        url: ogImageUrl,
+        secureUrl: ogImageUrl,
         width: 1200,
         height: 630,
+        type: 'image/png',
+        alt: 'JaaS // AI Repository & README Judge Engine',
+      },
+      {
+        url: ogDynamicUrl,
+        secureUrl: ogDynamicUrl,
+        width: 1200,
+        height: 630,
+        type: 'image/png',
         alt: 'JaaS // AI Repository & README Judge Engine',
       },
     ],
@@ -66,7 +79,7 @@ export const metadata: Metadata = {
     title: 'JaaS // AI Repository & README Judge Engine',
     description:
       'Unhinged AI technical critique engine powered by Groq GPT-OSS-120B, Bun runtime, and Upstash Redis.',
-    images: ['/og-image.png'],
+    images: [ogImageUrl],
     creator: '@jaas_dev',
   },
   robots: {
@@ -109,6 +122,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/png" href="/jaas.png" />
         <link rel="shortcut icon" href="/jaas.png" />
         <link rel="apple-touch-icon" href="/jaas.png" />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:secure_url" content={ogImageUrl} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="JaaS // AI Repository & README Judge Engine" />
+        <meta name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
         <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
         <script
           type="application/ld+json"

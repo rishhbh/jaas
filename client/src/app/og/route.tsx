@@ -31,7 +31,7 @@ export async function GET() {
               border: '3px solid #000000',
             }}
           >
-            JaaS.ENGINE v2.0
+            JaaS ENGINE v2.0
           </div>
           <div
             style={{
