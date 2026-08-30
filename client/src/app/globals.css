@@ -230,10 +230,30 @@ body {
   animation-play-state: paused;
 }
 
+/* Mobile Responsive Table and Code Block Adjustments */
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prose pre {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -249,3 +269,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--brutal-red);
 }
+

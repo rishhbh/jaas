@@ -1,11 +1,19 @@
 import { judgeReadmeSchema } from '../schemas/judge.schema.js';
 import { parseGithubUrl, fetchRepoReadme } from '../services/github.service.js';
 import { generateRepoRoast } from '../services/ai/groq.service.js';
+import { jaasSelfRoastVerdict } from '../services/ai/prompts.js';
 import {
   generateRoastCacheKey,
   getCachedRoast,
   setCachedRoast,
 } from '../services/cache.service.js';
+
+const isJaasSelfRepo = (owner, repo, readmeText) => {
+  if (repo && repo.toLowerCase() === 'jaas') return true;
+  if (owner && (owner.toLowerCase() === 'rishhbh' || owner.toLowerCase() === 'jaas') && repo && repo.toLowerCase() === 'jaas') return true;
+  if (readmeText && (readmeText.includes('Submit a README. Get judged.') || readmeText.includes('Judging-as-a-Service') || readmeText.includes('rishhbh/jaas'))) return true;
+  return false;
+};
 
 export const fetchReadmePreview = async (req, res, next) => {
   try {
@@ -107,8 +115,13 @@ export const judgeReadme = async (req, res, next) => {
       });
     }
 
-    const repoName = repo ? `${owner}/${repo}` : 'Uploaded README';
-    const roast = await generateRepoRoast(readmeMarkdown, { repoName, model });
+    let roast = '';
+    if (isJaasSelfRepo(owner, repo, readmeMarkdown)) {
+      roast = jaasSelfRoastVerdict;
+    } else {
+      const repoName = repo ? `${owner}/${repo}` : 'Uploaded README';
+      roast = await generateRepoRoast(readmeMarkdown, { repoName, model });
+    }
 
     const responsePayload = {
       source,

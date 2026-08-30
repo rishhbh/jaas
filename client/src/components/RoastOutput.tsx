@@ -28,19 +28,19 @@ export const RoastOutput: React.FC<RoastOutputProps> = ({ data }) => {
     <div className="brutal-card-lg mt-8 p-0 bg-[var(--bg-soft)]">
       {/* Header Bar */}
       <div
-        className={`p-4 border-b-4 border-[var(--ink)] flex flex-wrap items-center justify-between gap-3 ${
+        className={`p-3.5 sm:p-4 border-b-4 border-[var(--ink)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 ${
           data.cached
             ? 'bg-[#2196F3] text-white'
             : 'bg-[#FF5252] text-white'
         }`}
       >
-        <div className="flex items-center gap-3 font-mono font-black text-sm uppercase tracking-wider">
+        <div className="flex items-center gap-2.5 font-mono font-black text-xs sm:text-sm uppercase tracking-wider truncate">
           {data.cached ? (
-            <Zap className="w-5 h-5 fill-yellow-300 text-yellow-300" />
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-300 text-yellow-300 shrink-0" />
           ) : (
-            <Flame className="w-5 h-5 fill-yellow-300 text-yellow-300" />
+            <Flame className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-300 text-yellow-300 shrink-0" />
           )}
-          <span>
+          <span className="truncate">
             {data.cached
               ? '[CACHED] ROAST VERDICT (UPSTASH REDIS 24H)'
               : '[LIVE] GROQ GPT-OSS-120B VERDICT OUTPUT'}
@@ -49,27 +49,27 @@ export const RoastOutput: React.FC<RoastOutputProps> = ({ data }) => {
 
         <button
           onClick={handleCopy}
-          className="brutal-btn brutal-btn-yellow text-xs py-1.5 px-3"
+          className="brutal-btn brutal-btn-yellow text-xs py-2 px-4 shrink-0 w-full sm:w-auto"
         >
           {copied ? (
-            <span className="flex items-center gap-1.5 text-black">
+            <span className="flex items-center justify-center gap-1.5 text-black font-black">
               <Check className="w-4 h-4 stroke-[3]" /> COPIED!
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 text-black">
+            <span className="flex items-center justify-center gap-1.5 text-black font-black">
               <Copy className="w-4 h-4 stroke-[3]" /> COPY VERDICT
             </span>
           )}
         </button>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Repo Metadata Banner if applicable */}
         {data.source === 'github' && data.owner && data.repo && (
-          <div className="mb-6 p-3 bg-[var(--bg-softer)] border-2 border-[var(--ink)] shadow-[3px_3px_0px_var(--shadow-color)] flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
-            <div className="flex items-center gap-2 font-bold uppercase">
-              <GitBranch className="w-4 h-4 text-[var(--brutal-yellow)]" />
-              <span>
+          <div className="mb-6 p-3 bg-[var(--bg-softer)] border-2 border-[var(--ink)] shadow-[3px_3px_0px_var(--shadow-color)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-mono text-xs">
+            <div className="flex items-center gap-2 font-bold uppercase truncate max-w-full">
+              <GitBranch className="w-4 h-4 text-[var(--brutal-yellow)] shrink-0" />
+              <span className="truncate">
                 TARGET REPO: <span className="text-[var(--brutal-yellow)]">{data.owner}/{data.repo}</span>
               </span>
             </div>
@@ -79,7 +79,7 @@ export const RoastOutput: React.FC<RoastOutputProps> = ({ data }) => {
                 href={data.metadata.html_url}
                 target="_blank"
                 rel="noreferrer"
-                className="brutal-badge brutal-badge-yellow hover:translate-x-[1px] hover:translate-y-[1px]"
+                className="brutal-badge brutal-badge-yellow hover:translate-x-[1px] hover:translate-y-[1px] shrink-0"
               >
                 <span>OPEN ON GITHUB</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -89,16 +89,16 @@ export const RoastOutput: React.FC<RoastOutputProps> = ({ data }) => {
         )}
 
         {/* Terminal Output Screen */}
-        <div className="bg-[#000000] border-4 border-[var(--ink)] p-6 shadow-[6px_6px_0px_#FFEB3B] overflow-x-auto">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-zinc-800 font-mono text-xs text-emerald-400 font-bold tracking-widest uppercase">
+        <div className="bg-[#000000] border-4 border-[var(--ink)] p-4 sm:p-6 shadow-[4px_4px_0px_#FFEB3B] sm:shadow-[6px_6px_0px_#FFEB3B] overflow-x-auto">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-zinc-800 font-mono text-[10px] sm:text-xs text-emerald-400 font-bold tracking-widest uppercase">
             <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-emerald-400" />
+              <Terminal className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>ROAST_VERDICT_OUTPUT.LOG</span>
             </div>
-            <span className="text-zinc-500">FORMAT: MARKDOWN / UTF-8</span>
+            <span className="text-zinc-500 hidden sm:inline">FORMAT: MARKDOWN / UTF-8</span>
           </div>
 
-          <div className="prose prose-invert prose-green max-w-none font-mono text-sm leading-relaxed text-zinc-100">
+          <div className="prose prose-invert prose-green max-w-none font-mono text-xs sm:text-sm leading-relaxed text-zinc-100">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
               {data.roast}
             </ReactMarkdown>
@@ -109,14 +109,14 @@ export const RoastOutput: React.FC<RoastOutputProps> = ({ data }) => {
         <div className="mt-6 flex justify-end">
           <button
             onClick={handleCopy}
-            className="brutal-btn brutal-btn-yellow text-sm py-2 px-6"
+            className="brutal-btn brutal-btn-yellow text-xs sm:text-sm py-2.5 px-6 w-full sm:w-auto"
           >
             {copied ? (
-              <span className="flex items-center gap-2 text-black font-black">
+              <span className="flex items-center justify-center gap-2 text-black font-black">
                 <Check className="w-5 h-5 stroke-[3]" /> VERDICT COPIED TO CLIPBOARD
               </span>
             ) : (
-              <span className="flex items-center gap-2 text-black font-black">
+              <span className="flex items-center justify-center gap-2 text-black font-black">
                 <Copy className="w-5 h-5 stroke-[3]" /> COPY FULL MARKDOWN
               </span>
             )}

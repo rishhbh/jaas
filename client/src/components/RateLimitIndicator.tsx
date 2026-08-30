@@ -58,14 +58,14 @@ export const RateLimitIndicator: React.FC = () => {
       </div>
 
       <div className="p-4 sm:p-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
           {/* Quota Counter */}
           <div className="flex items-center gap-3">
             <div className={`p-2.5 border-2 border-[var(--ink)] shadow-[2px_2px_0px_var(--shadow-color)] ${isGuest ? 'bg-[var(--brutal-red)] text-white' : 'bg-[var(--brutal-yellow)] text-black'}`}>
               <Flame className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
-              <div className="font-mono font-black text-lg tracking-tight uppercase">
+              <div className="font-mono font-black text-base sm:text-lg tracking-tight uppercase">
                 {remaining}/{limit} ROASTS REMAINING
               </div>
               <div className="font-mono text-xs text-[var(--ink-dim)]">
@@ -75,7 +75,7 @@ export const RateLimitIndicator: React.FC = () => {
           </div>
 
           {/* Hard Shadow Progress Bar */}
-          <div className="flex-1 max-w-xs w-full">
+          <div className="flex-1 w-full max-w-full lg:max-w-xs">
             <div className="h-6 w-full bg-[var(--bg-softer)] border-2 border-[var(--ink)] shadow-[3px_3px_0px_var(--shadow-color)] p-0.5">
               <div
                 className={`h-full transition-all duration-300 ${
@@ -91,9 +91,9 @@ export const RateLimitIndicator: React.FC = () => {
           </div>
 
           {/* Reset Time Readout */}
-          <div className="flex items-center gap-2 font-mono text-xs bg-[var(--bg-softer)] border-2 border-[var(--ink)] p-2.5 shadow-[2px_2px_0px_var(--shadow-color)]">
-            <Clock className="w-4 h-4 text-[var(--brutal-yellow)]" />
-            <div>
+          <div className="flex items-center gap-2 font-mono text-xs bg-[var(--bg-softer)] border-2 border-[var(--ink)] p-2.5 shadow-[2px_2px_0px_var(--shadow-color)] w-full lg:w-auto">
+            <Clock className="w-4 h-4 text-[var(--brutal-yellow)] shrink-0" />
+            <div className="truncate">
               <span className="font-bold text-[var(--ink-dim)] uppercase">LIMIT RESET: </span>
               <span className="font-black text-[var(--ink)]">{formatResetTime(rateLimit.resetAt)}</span>
             </div>

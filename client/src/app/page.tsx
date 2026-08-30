@@ -83,93 +83,95 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] flex flex-col font-mono selection:bg-[var(--brutal-yellow)] selection:text-black">
       {/* Main Structural Navbar / HUD Dock */}
-      <header className="sticky top-0 bg-[var(--bg-soft)] border-b-3 border-[var(--ink)] z-40 shadow-[0px_3px_0px_var(--shadow-color)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-1.5 flex items-center justify-between flex-wrap gap-2">
-          {/* Logo & Brand */}
+      <header className="sticky top-0 bg-[var(--bg-soft)] border-b-3 border-[var(--ink)] z-40 shadow-[0px_3px_0px_var(--shadow-color)] max-w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+          {/* Top Row / Left: Logo & Brand */}
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-[var(--brutal-red)] text-white border-2 border-[var(--ink)] shadow-[2px_2px_0px_var(--shadow-color)]">
+            <div className="p-1 bg-[var(--brutal-red)] text-white border-2 border-[var(--ink)] shadow-[2px_2px_0px_var(--shadow-color)] shrink-0">
               <Flame className="w-4 h-4 stroke-[3]" />
             </div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-mono font-black text-base tracking-tight uppercase text-[var(--ink)]">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h1 className="font-mono font-black text-sm sm:text-base tracking-tight uppercase text-[var(--ink)]">
                 JaaS<span className="text-[var(--brutal-yellow)]">.ENGINE</span>
               </h1>
-              <span className="brutal-badge brutal-badge-yellow text-[9px] py-0.5 px-1.5">v2.0 BRUTAL</span>
+              <span className="brutal-badge brutal-badge-yellow text-[8px] sm:text-[9px] py-0.5 px-1 sm:px-1.5">v2.0 BRUTAL</span>
             </div>
           </div>
 
           {/* Nav Links & Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto">
             <button
               onClick={() => setActiveTab('workbench')}
-              className={`brutal-btn text-[11px] py-1 px-2.5 ${activeTab === 'workbench' ? 'brutal-btn-yellow' : 'brutal-btn-dark'
-                }`}
+              className={`brutal-btn text-[10px] sm:text-[11px] py-1 px-2 sm:px-2.5 ${
+                activeTab === 'workbench' ? 'brutal-btn-yellow' : 'brutal-btn-dark'
+              }`}
             >
-              <Terminal className="w-3.5 h-3.5 mr-1" />
+              <Terminal className="w-3.5 h-3.5 mr-1 shrink-0" />
               <span>WORKBENCH</span>
             </button>
 
             <button
               onClick={() => setActiveTab('architecture')}
-              className={`brutal-btn text-[11px] py-1 px-2.5 ${activeTab === 'architecture' ? 'brutal-btn-blue' : 'brutal-btn-dark'
-                }`}
+              className={`brutal-btn text-[10px] sm:text-[11px] py-1 px-2 sm:px-2.5 ${
+                activeTab === 'architecture' ? 'brutal-btn-blue' : 'brutal-btn-dark'
+              }`}
             >
-              <Layers className="w-3.5 h-3.5 mr-1" />
+              <Layers className="w-3.5 h-3.5 mr-1 shrink-0" />
               <span>SPECS</span>
             </button>
 
-            {/* Theme Toggle Button */}
+            {/* Single Unified Theme Toggle Button */}
             <button
               onClick={toggleTheme}
               aria-label="Toggle Light/Dark Theme"
-              className="brutal-btn brutal-btn-dark p-1 text-[11px]"
+              className="brutal-btn brutal-btn-dark p-1 sm:p-1.5 text-[10px] sm:text-[11px]"
               title="Toggle Light/Dark Theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-3.5 h-3.5 text-[var(--brutal-yellow)]" />
+                <Sun className="w-3.5 h-3.5 text-[var(--brutal-yellow)] shrink-0" />
               ) : (
-                <Moon className="w-3.5 h-3.5 text-[var(--brutal-blue)]" />
+                <Moon className="w-3.5 h-3.5 text-[var(--brutal-blue)] shrink-0" />
               )}
             </button>
 
             {/* Quick Auth Status Indicator */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-2 p-1 bg-[var(--bg-softer)] border-2 border-[var(--ink)] shadow-[2px_2px_0px_var(--shadow-color)] font-mono text-xs">
+              <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-[var(--bg-softer)] border-2 border-[var(--ink)] shadow-[2px_2px_0px_var(--shadow-color)] font-mono text-xs">
                 {user?.avatar ? (
                   <img
                     src={user.avatar}
                     alt="avatar"
-                    className="w-6 h-6 border-2 border-[var(--ink)] object-cover shrink-0"
+                    className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-[var(--ink)] object-cover shrink-0"
                   />
                 ) : (
-                  <div className="w-6 h-6 bg-[var(--brutal-yellow)] text-black border-2 border-[var(--ink)] flex items-center justify-center font-black text-xs shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[var(--brutal-yellow)] text-black border-2 border-[var(--ink)] flex items-center justify-center font-black text-xs shrink-0">
                     {user?.name?.charAt(0) || 'U'}
                   </div>
                 )}
-                <span className="font-bold text-xs truncate max-w-[110px] leading-none px-0.5">{user?.name}</span>
+                <span className="font-bold text-[10px] sm:text-xs truncate max-w-[75px] sm:max-w-[110px] leading-none px-0.5">{user?.name}</span>
                 <button
                   onClick={logout}
-                  className="h-6 px-2 bg-[var(--brutal-red)] text-white border-2 border-[var(--ink)] font-mono font-bold text-[10px] uppercase flex items-center gap-1 hover:bg-[var(--ink)] transition-colors shadow-none cursor-pointer"
+                  className="h-5 sm:h-6 px-1.5 sm:px-2 bg-[var(--brutal-red)] text-white border-2 border-[var(--ink)] font-mono font-bold text-[9px] sm:text-[10px] uppercase flex items-center gap-1 hover:bg-[var(--ink)] transition-colors shadow-none cursor-pointer"
                 >
                   <LogOut className="w-3 h-3" />
                   <span>OUT</span>
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <button
                   onClick={triggerGoogleSignIn}
-                  className="brutal-btn brutal-btn-yellow text-[11px] py-1 px-2.5 text-black font-black"
+                  className="brutal-btn brutal-btn-yellow text-[10px] sm:text-[11px] py-1 px-2 sm:px-2.5 text-black font-black"
                 >
-                  <LogIn className="w-3.5 h-3.5 mr-1" />
-                  <span>GOOGLE SIGN IN</span>
+                  <LogIn className="w-3.5 h-3.5 mr-1 shrink-0" />
+                  <span className="hidden sm:inline">GOOGLE </span><span>SIGN IN</span>
                 </button>
 
                 <button
                   onClick={() => loginAsGuest('Developer Guest', 'guest@jaas.dev')}
-                  className="brutal-btn brutal-btn-dark text-[11px] py-1 px-2.5 opacity-80 hover:opacity-100"
+                  className="brutal-btn brutal-btn-dark text-[10px] sm:text-[11px] py-1 px-2 sm:px-2.5 opacity-80 hover:opacity-100"
                 >
-                  <span>GUEST (1 TRIAL)</span>
+                  <span>GUEST</span><span className="hidden sm:inline"> (1 TRIAL)</span>
                 </button>
               </div>
             )}
@@ -211,7 +213,7 @@ export default function Home() {
             </div>
 
             {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-3 gap-3 border-t-3 border-[var(--ink)] pt-4 font-mono text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 border-t-3 border-[var(--ink)] pt-4 font-mono text-xs">
               <div className="p-2.5 bg-[var(--bg-softer)] border-2 border-[var(--ink)]">
                 <div className="text-[var(--ink-dim)] uppercase text-[10px]">CACHE TTL</div>
                 <div className="font-black text-sm text-[var(--brutal-yellow)]">24 HOURS</div>

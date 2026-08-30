@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 export const parseGithubUrl = (url) => {
   if (!url || typeof url !== 'string') {
     throw new Error('Invalid GitHub repository URL provided');
@@ -21,6 +24,27 @@ export const parseGithubUrl = (url) => {
 };
 
 export const fetchRepoReadme = async (owner, repo) => {
+  // Check if target is JaaS self-repo and serve local README if needed
+  if ((owner.toLowerCase() === 'rishhbh' || owner.toLowerCase() === 'jaas') && repo.toLowerCase() === 'jaas') {
+    try {
+      const localReadmePath = path.resolve(process.cwd(), '../README.md');
+      if (fs.existsSync(localReadmePath)) {
+        const markdown = fs.readFileSync(localReadmePath, 'utf-8');
+        return {
+          name: 'README.md',
+          path: 'README.md',
+          sha: 'jaas-local-sha-001',
+          size: markdown.length,
+          html_url: 'https://github.com/rishhbh/jaas',
+          download_url: 'https://raw.githubusercontent.com/rishhbh/jaas/main/README.md',
+          markdown,
+        };
+      }
+    } catch {
+      // Fallback to GitHub API fetch if local file cannot be read
+    }
+  }
+
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/readme`;
 
   const response = await fetch(apiUrl, {

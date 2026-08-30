@@ -294,16 +294,18 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
             </div>
 
             {/* Model & Generate Roast Action Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3 border-t-2 border-dashed border-[var(--ink-faint)]">
-              <div className="flex items-center gap-2 font-mono text-xs">
-                <Cpu className="w-4 h-4 text-[var(--brutal-yellow)]" />
-                <span className="font-bold text-[var(--ink-dim)]">AI MODEL:</span>
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pt-3 border-t-2 border-dashed border-[var(--ink-faint)]">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 font-mono text-xs">
+                <div className="flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-[var(--brutal-yellow)] shrink-0" />
+                  <span className="font-bold text-[var(--ink-dim)] shrink-0">AI MODEL:</span>
+                </div>
                 <select
                   id="model"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   disabled={roasting}
-                  className="bg-[var(--bg-soft)] text-[var(--ink)] font-mono text-xs p-2 border-2 border-[var(--ink)] shadow-[2px_2px_0px_var(--shadow-color)] font-bold focus:outline-none"
+                  className="bg-[var(--bg-soft)] text-[var(--ink)] font-mono text-xs p-2.5 border-2 border-[var(--ink)] shadow-[2px_2px_0px_var(--shadow-color)] font-bold focus:outline-none w-full sm:w-auto"
                 >
                   <option value="openai/gpt-oss-120b">GROQ GPT-OSS-120B (BRUTAL ROAST)</option>
                 </select>
@@ -313,15 +315,15 @@ export const RoastForm: React.FC<RoastFormProps> = ({ onRoastComplete }) => {
                 type="button"
                 onClick={handleGenerateRoast}
                 disabled={roasting}
-                className="brutal-btn brutal-btn-yellow text-sm py-3.5 px-8 text-black min-h-[50px]"
+                className="brutal-btn brutal-btn-yellow text-xs sm:text-sm py-3.5 px-6 sm:px-8 text-black min-h-[50px] w-full lg:w-auto"
               >
                 {roasting ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-2">
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span>GENERATING VERDICT...</span>
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-2">
                     <Flame className="w-5 h-5 stroke-[2.5]" />
                     <span>GENERATE BRUTAL ROAST</span>
                     <ArrowRight className="w-4 h-4 ml-1 stroke-[3]" />
