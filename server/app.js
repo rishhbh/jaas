@@ -1,10 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 import authRoutes from './src/routes/auth.routes.js';
+import judgeRoutes from './src/routes/judge.routes.js';
 
 const app = express();
 
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(
   cors({
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
@@ -24,6 +27,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/judge', judgeRoutes);
 
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {
