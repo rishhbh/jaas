@@ -297,7 +297,7 @@ jaas/
 ```env
 PORT=5000
 MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/jaas
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=https://jaas.localplayer.dev,https://jaas-two.vercel.app
 GOOGLE_CLIENT_ID=your_google_client_id_here
 ACCESS_TOKEN_SECRET=your_access_token_secret_here
 REFRESH_TOKEN_SECRET=your_refresh_token_secret_here

@@ -8,9 +8,19 @@ import judgeRoutes from './src/routes/judge.routes.js';
 const app = express();
 
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((url) => url.trim()).filter(Boolean)
+  : ['http://localhost:3000'];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS Policy: Origin ${origin} is not allowed.`));
+      }
+    },
     credentials: true,
   })
 );
