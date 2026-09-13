@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { RateLimitIndicator } from '../components/RateLimitIndicator';
 import { RoastForm, RoastResultData } from '../components/RoastForm';
 import { RoastOutput } from '../components/RoastOutput';
+import { VerdictPlaceholder } from '../components/VerdictPlaceholder';
 import {
   Flame,
   Zap,
@@ -346,7 +347,7 @@ export default function Home() {
             </div>
 
             <RoastForm onRoastComplete={(res) => setRoastResult(res)} />
-            <RoastOutput data={roastResult} />
+            {roastResult ? <RoastOutput data={roastResult} /> : <VerdictPlaceholder />}
           </div>
         ) : (
           /* System Architecture & Specs Section */
