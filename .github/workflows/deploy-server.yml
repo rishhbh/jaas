@@ -1,0 +1,60 @@
+name: Deploy JaaS Server to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'server/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/deploy-server.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Server to AWS EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            APP_DIR="${{ secrets.EC2_APP_DIR }}"
+            if [ -z "$APP_DIR" ]; then
+              APP_DIR="~/jaas"
+            fi
+
+            echo "==> Navigating to application directory: $APP_DIR"
+            cd "$APP_DIR"
+
+            echo "==> Pulling latest server changes from main branch..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==> Checking Docker Compose availability..."
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE_CMD="docker compose"
+            elif which docker-compose >/dev/null 2>&1; then
+              COMPOSE_CMD="docker-compose"
+            else
+              echo "Error: Docker Compose is not installed on the EC2 instance."
+              exit 1
+            fi
+
+            echo "==> Building and restarting JaaS server container..."
+            $COMPOSE_CMD up -d --build jaas-backend
+
+            echo "==> Pruning dangling Docker images..."
+            docker image prune -f
+
+            echo "==> Verifying container status..."
+            $COMPOSE_CMD ps jaas-backend
