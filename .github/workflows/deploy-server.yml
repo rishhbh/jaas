@@ -28,10 +28,7 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT || 22 }}
           script_stop: true
           script: |
-            APP_DIR="${{ secrets.EC2_APP_DIR }}"
-            if [ -z "$APP_DIR" ]; then
-              APP_DIR="~/jaas"
-            fi
+            APP_DIR="/home/ubuntu/jaas"
 
             echo "==> Navigating to application directory: $APP_DIR"
             cd "$APP_DIR"
