@@ -1,7 +1,7 @@
 # JaaS // Judging-as-a-Service
 
 > **Raw Editorial Neubrutalism AI Repository Evaluation Engine**  
-> High-velocity technical critique platform powered by **Groq AI (GPT-OSS-120B)**, **Bun + Express**, **Upstash Redis**, **MongoDB**, **Google OAuth 2.0**, and **Cloudinary**.
+> High-velocity technical critique platform powered by **Groq AI (GPT-OSS-120B)**, **Bun + Express**, **AWS EC2**, **Upstash Redis**, **MongoDB**, **Google OAuth 2.0**, and **Cloudinary**.
 
 <p align="center">
   <img
@@ -37,7 +37,7 @@ Every technical choice in JaaS was made to maximize execution velocity, inferenc
 - **Why Bun over Node.js?**
   - **Native ESM & TypeScript Execution**: Eliminates complex build/transpilation steps for server scripts, allowing instant cold starts and simplified containerization.
   - **High-Performance HTTP Parsing**: Bun's native C++ HTTP server foundation delivers up to 4x higher throughput for concurrent API requests compared to standard Node.js runtime engines.
-  - **Low Memory Overhead**: Ideal for containerized environments running on resource-constrained micro-instances (e.g., Render free tier or Docker containers).
+  - **Low Memory Overhead**: Ideal for containerized production environments running on cloud virtual machines (e.g., AWS EC2 instances or Docker containers).
 - **Why Express 5?**
   - Standardized, battle-tested middleware routing pipeline for authentication, rate limiting, validation schemas, and error handling.
 
@@ -81,6 +81,16 @@ Every technical choice in JaaS was made to maximize execution velocity, inferenc
   - **High-Contrast Monochrome & Accents**: `#0e0e10` background, `#000000` borders, `#FFEB3B` (Yellow), `#2196F3` (Blue), and `#FF5252` (Red) primary fills.
   - **Monospace Typography**: JetBrains Mono for technical metadata, badges, scorecards, and courtroom charge sheets.
 
+### 7. Cloud Infrastructure & Continuous Deployment: AWS EC2 + GitHub Actions
+- **Why AWS EC2?**
+  - **Dedicated Persistent Compute**: Eliminates cold-start delays and container sleep cycles associated with free-tier serverless environments.
+  - **Isolated Containerization**: The Bun server runs inside a hardened Alpine Linux container orchestrated through Docker Compose on an Ubuntu EC2 instance.
+  - **Sustained Throughput**: Guarantees fast, uninterrupted execution for Groq AI inference pipelines, GitHub REST API fetches, and Upstash Redis transactions.
+- **Automated CI/CD Pipeline (`deploy-server.yml`)**:
+  - Triggers automatically on pushes to `main` impacting backend services, Docker configuration, or deployment workflows.
+  - Authenticates securely to the AWS EC2 instance via SSH keys managed in GitHub Secrets (`appleboy/ssh-action`).
+  - Performs automated repository synchronization, container rebuilds (`docker compose up -d --build jaas-backend`), and dangling image pruning with zero manual downtime.
+
 ---
 
 ## Visual Showcase
@@ -120,7 +130,7 @@ flowchart TD
         RoastForm["Two-Step Roast Workbench"]
     end
 
-    subgraph Backend ["Server (Bun Runtime + Express 5)"]
+    subgraph Backend ["Server (Bun Runtime + Express 5 on AWS EC2)"]
         API["Express Router (/api)"]
         AuthCtrl["Auth Controller"]
         JudgeCtrl["Judge Controller"]
@@ -176,7 +186,7 @@ flowchart TD
 - **24-Hour AI Response Caching**: Upstash Redis key-value caching prevents duplicate AI inference calls for identical repositories within a 24-hour window.
 - **Google OAuth 2.0 & Cloudinary Avatars**: Instant one-tap Google authentication with automated face-centered avatar uploads to Cloudinary CDN.
 - **Self-Roast Easter Egg Immunity**: Built-in judicial immunity evaluation for the `JaaS` repository (`rishhbh/jaas`), returning a perfect 100/100 rating.
-- **Containerized Production Setup**: Multi-stage Alpine Bun Dockerfile and root `docker-compose.yml`.
+- **AWS EC2 Production Infrastructure & CI/CD**: Containerized Bun backend hosted on an AWS EC2 instance, orchestrated with Docker Compose, and continuously deployed via GitHub Actions.
 - **Complete SEO & PWA Suite**: Built-in OpenGraph generator (`/og-image.png`), Dynamic Sitemap (`/sitemap.xml`), Robots rules (`/robots.txt`), PWA Manifest (`/site.webmanifest`), and Schema.org JSON-LD structured data.
 
 ---
@@ -185,6 +195,9 @@ flowchart TD
 
 ```
 jaas/
+├── .github/
+│   └── workflows/
+│       └── deploy-server.yml   # AWS EC2 Continuous Deployment workflow
 ├── assets/                     # Platform screenshots and showcase media assets
 ├── client/                     # Next.js 16 App Router Frontend
 │   ├── public/                 # Static assets (jaas.png, og-image.png, site.webmanifest)
@@ -348,16 +361,45 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Docker Deployment
+## Production Deployment & AWS EC2 Infrastructure
 
-Build and orchestrate the backend container using Docker Compose:
+The JaaS backend is hosted in production on an **AWS EC2** instance (Ubuntu) running the containerized Bun server via Docker Compose.
+
+### 1. Automated CI/CD Pipeline (GitHub Actions)
+
+Continuous deployment is managed through [`.github/workflows/deploy-server.yml`](file:///.github/workflows/deploy-server.yml). Pushes to the `main` branch affecting `server/**`, `docker-compose.yml`, or the deployment workflow automatically trigger the deployment job:
+
+1. **Secure SSH Connection**: Connects to the AWS EC2 instance using `appleboy/ssh-action` with credentials stored in GitHub Secrets.
+2. **Code Synchronization**: Pulls the latest commits from `origin/main` into the application directory (`/home/ubuntu/jaas`).
+3. **Container Rebuild & Restart**: Executes `docker compose up -d --build jaas-backend` to build and redeploy the backend container with zero manual intervention.
+4. **Housekeeping & Verification**: Prunes dangling Docker images (`docker image prune -f`) and verifies container health.
+
+#### Required GitHub Secrets for AWS EC2 Deployment
+Configure the following secrets in repository settings under **Settings > Secrets and variables > Actions**:
+
+| Secret | Description | Example / Default |
+| --- | --- | --- |
+| `EC2_HOST` | Public IP address or DNS hostname of the AWS EC2 instance | `54.x.x.x` |
+| `EC2_USER` | SSH user for the EC2 instance | `ubuntu` |
+| `EC2_SSH_KEY` | Private SSH key authorized on the instance (`.pem` format) | `-----BEGIN RSA PRIVATE KEY-----...` |
+| `EC2_SSH_PORT` | SSH port on the EC2 instance | `22` (default) |
+
+---
+
+### 2. Manual Container Deployment (Local or AWS EC2)
+
+You can build and run the backend container locally or directly on an EC2 instance:
 
 ```bash
 # Build backend Docker image
 docker build -t jaas-backend ./server
 
-# Launch backend container in background
+# Launch backend container in background via Docker Compose
 docker compose up -d
+
+# Verify container status and logs
+docker compose ps
+docker compose logs -f jaas-backend
 ```
 
 ---
